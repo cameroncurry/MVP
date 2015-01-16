@@ -31,15 +31,15 @@ public class IsingView extends JPanel {
 		if(array != null){
 			Dimension d = getSize(); //must call getSize here because dimensions aren't initialized in constructor
 			
-			int boxwidth = d.width/array.length;
-			int boxHeight = d.height/array[0].length;
+			double boxwidth = (double)d.width / (double)array.length;
+			double boxHeight = (double)d.height / (double)array[0].length;
 			
 			for(int i=0; i<array.length; i++){
 				for(int j=0; j<array[i].length; j++){
-					if(array[i][j]) g.setColor(Color.black);
+					if(array[i][j]) g.setColor(Color.blue);
 					else g.setColor(Color.white);
 					
-					g.fillRect(i*boxwidth, j*boxHeight, boxwidth, boxHeight);
+					g.fillRect((int)(i*boxwidth), (int)(j*boxHeight), (int)boxwidth, (int)boxHeight);
 				}
 			}
 		} 
