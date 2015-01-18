@@ -5,9 +5,8 @@ import javax.swing.*;
 public class IsingController extends SwingWorker<Void,Void>{
 
 	public static void main(String[] args){
-		IsingController c = new IsingController();
-		c.start();
-		/*
+		
+		
 		try {
 			SwingUtilities.invokeAndWait(new Runnable(){
 				public void run(){
@@ -38,7 +37,7 @@ public class IsingController extends SwingWorker<Void,Void>{
 		
 		view = new IsingView();
 		//IsingModel(width,height,J,kb,T, initial spin up prob.)
-		ising = new IsingModel(25,25,1,1,0.1,0.75);
+		ising = new IsingModel(100,100,1,1,0.01,0.50,false);
 		
 	
 		frame.getContentPane().add(view);
@@ -54,21 +53,7 @@ public class IsingController extends SwingWorker<Void,Void>{
 	}
 	
 	public void start(){
-		view.set(ising.get());
-		
-		//loop simulation
-		for(int i=0; true; i++){
-			
-			//wait for a bit
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			ising.updateGlauber();
-			view.set(ising.get());
-		}
+		this.execute();
 	}
 
 	/*
@@ -78,30 +63,16 @@ public class IsingController extends SwingWorker<Void,Void>{
 		//run ising simulation
 		
 		//set initial view
-		view.set(ising.get());
+		view.set(ising.getSpins());
 		
 		//loop simulation
 		for(int i=0; true; i++){
-			System.out.print(i);
-			//wait for a bit
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			ising.updateGlauber();
-			view.set(ising.get());
+			
+			ising.update();
+			view.set(ising.getSpins());
 		}
 		
-		
-		
-		//return null;
 	}
 	
-	public void done(){
-		//plot graphs here
-	}
-
 	
 }
