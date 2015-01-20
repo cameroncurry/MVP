@@ -1,5 +1,9 @@
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+
+import javax.swing.JPanel;
+
 
 /*
  * class that draws a 2d boolean grid in squares
@@ -14,38 +18,43 @@ public class IsingView extends JPanel {
 	//must e set later in simulation
 	private boolean[][] array;
 	
+	
 	public IsingView(){
 		setBackground(Color.white);
 	}
 	
-	public void set(boolean[][] array){
+	public void setAndRepaint(boolean[][] array){
 		this.array = array;
 		repaint();
 	}
 	
 	
 	public void paintComponent(Graphics g){
-		super.paintComponent(g);
 		
 		//only paint if array has been set
 		if(array != null){
 			Dimension d = getSize(); //must call getSize here because dimensions aren't initialized in constructor
 			
-			double boxwidth = (double)d.width / (double)array.length;
+			double boxWidth = (double)d.width / (double)array.length;
 			double boxHeight = (double)d.height / (double)array[0].length;
+			
 			
 			for(int i=0; i<array.length; i++){
 				for(int j=0; j<array[i].length; j++){
-					if(array[i][j]) g.setColor(Color.blue);
-					else g.setColor(Color.white);
-					
-					g.fillRect((int)(i*boxwidth), (int)(j*boxHeight), (int)boxwidth, (int)boxHeight);
+					paintBox(g,i,j,boxWidth,boxHeight);
 				}
-			}
-		} 
-		
-		//g.fillRect(100, 100, 50, 50);
-		
+			}	
+		}
+		else {
+			super.paintComponent(g);
+		}
+	}
+	
+	private void paintBox(Graphics g, int i, int j, double boxWidth, double boxHeight){
+		if(array[i][j]) g.setColor(Color.blue);
+		else g.setColor(Color.white);
+	
+		g.fillRect((int)(i*boxWidth), (int)(j*boxHeight), (int)boxWidth, (int)boxHeight);
 	}
 
 }

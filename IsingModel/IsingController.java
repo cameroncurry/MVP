@@ -1,78 +1,106 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.*;
 
-public class IsingController extends SwingWorker<Void,Void>{
+public class IsingController implements Viewable<IsingSettings>, Runnable {
 
-	public static void main(String[] args){
-		
-		
-		try {
-			SwingUtilities.invokeAndWait(new Runnable(){
-				public void run(){
-					IsingController c = new IsingController();
-					c.start();
-				}
-			});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		/*
-		try {
-			Runtime.getRuntime().exec("echo hello");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-	}
 	
-	private JFrame frame;
+	private static final long serialVersionUID = 1L;
+	
+	private JButton backButton;
+	
+	private JPanel fullPanel;
 	private IsingView view;
 	private IsingModel ising;
 	
+	private Thread simulationThread;
+	
 	
 	public IsingController(){
-		initGUI();
+		fullPanel = new JPanel();
+		fullPanel.setLayout(new BorderLayout());
+		
+		JPanel header = new JPanel();
+		header.setBackground(Color.white);
+		header.setLayout(new BorderLayout());
+		
+		backButton = new JButton("Back");
+		header.add(backButton,BorderLayout.WEST);
+		
+		fullPanel.add(header,BorderLayout.NORTH);
 		
 		view = new IsingView();
-		//IsingModel(width,height,J,kb,T, initial spin up prob.)
-		ising = new IsingModel(100,100,1,1,0.01,0.50,false);
+		fullPanel.add(view);
 		
-	
-		frame.getContentPane().add(view);
-		frame.setVisible(true);
 	}
 	
-	private void initGUI(){
-		frame = new JFrame();
-		frame.setSize(700,500);
-		frame.setMinimumSize(new Dimension(600,400));
-		frame.setLocationRelativeTo(null);//frame centre of screen
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
+	/*
+	 * viewable methods
+	 */
 	
-	public void start(){
-		this.execute();
+	public JPanel getView() {
+		return fullPanel;
 	}
 
-	/*
-	 * Swing worker methods
-	 */
-	protected Void doInBackground() {
+	public JComponent backClickComponent() {
+		return backButton;
+	}
+	
+	
+	public void setSettings(IsingSettings settings) {
+		ising = new IsingModel(settings);
+		simulationThread = new Thread(this);
+		simulationThread.start();
+	}
+	
+	public void willShowMenu(){
+		simulationThread.interrupt();
+	}
+	
+	
+	public void run() {
 		//run ising simulation
 		
 		//set initial view
-		view.set(ising.getSpins());
+		view.setAndRepaint(ising.getSpins());
 		
 		//loop simulation
 		for(int i=0; true; i++){
 			
 			ising.update();
-			view.set(ising.getSpins());
+			
+			view.setAndRepaint(ising.getSpins());
+			
 		}
 		
+		//return null;
 	}
 	
+}
+
+
+/*
+public static void main(String[] args){
+	
+	try {
+		SwingUtilities.invokeAndWait(new Runnable(){
+			public void run(){
+				IsingController c = new IsingController();
+				c.start();
+			}
+		});
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+	/*
+	try {
+		Runtime.getRuntime().exec("echo hello");
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 	
 }
+*/

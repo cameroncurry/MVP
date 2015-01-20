@@ -24,6 +24,11 @@ public class IsingModel {
 	private boolean glauber;
 	
 	
+	public IsingModel(IsingSettings settings){
+		this(settings.rows, settings.columns, settings.J, settings.kb, settings.T, settings.spinUp, settings.glauber);
+	}
+	
+	
 	//construct simulation by setting variables and filling array with spins
 	public IsingModel(int width, int height, double J, double k, double T, double initialUpProbability, boolean glauber) throws IllegalArgumentException {
 		if(initialUpProbability > 1. || initialUpProbability < 0.) throw new IllegalArgumentException("initial spin up probability must be between 0-1");
@@ -67,9 +72,9 @@ public class IsingModel {
 		
 		//if delta E is less than 0, flip spin
 		//otherwise randomly with prob. exp(deltaE / kT)
-		
+		//if spin if flipped then return coords otherwise return null
 		if(deltaE <= 0 || random.nextDouble() < Math.exp(-1*deltaE/(k*T))){
-			spins[randX][randY] = !spins[randX][randY];
+			spins[randX][randY] = !spins[randX][randY];	
 		}
 		
 	}
@@ -90,6 +95,7 @@ public class IsingModel {
 		double deltaE = kawasakiDeltaE(randX1,randY1,randX2,randY2);
 		
 		//exhange spins
+		//return coords as in glauber update
 		if(deltaE <= 0 || random.nextDouble() < Math.exp(-1*deltaE/(k*T))){
 			boolean tmp = spins[randX1][randY1];
 			spins[randX1][randY1] = spins[randX2][randY2];
