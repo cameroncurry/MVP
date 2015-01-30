@@ -1,22 +1,23 @@
 import java.util.Random;
+import java.util.ArrayList;
 
 public class IsingModel {
 
 	//true = +1spin
 	//false = -1spin
-	private boolean[][] spins;
+	protected boolean[][] spins;
 	
 	//keep dimensions of array here for quick access
-	private int width;
-	private int height;
+	protected int width;
+	protected int height;
 	
 	//random number generator
 	private Random random;
 	
 	//simulation constants
-	private double J;
-	private double k;
-	private double T;
+	protected double J;
+	protected double k;
+	protected double T;
 	
 	//type of dynamics
 	//true = glauber
@@ -49,20 +50,28 @@ public class IsingModel {
 				spins[i][j] = random.nextDouble() < initialUpProbability ? true : false;
 			}
 		}
+		
 	}
 	
 	public boolean[][] getSpins(){
 		return spins;
 	}
 	
-	public void update(){
-		if(glauber)updateGlauber();
-		else updateKawasaki();
+	public void setTemperature(double T){
+		this.T = T;
+	}
+	public double getTemperature(){
+		return T;
+	}
+	
+	public int[][] update(){
+		if(glauber) return updateGlauber();
+		else return updateKawasaki();
 	}
 	
 	
 	//one iteration of the simulation
-	private void updateGlauber(){
+	private int[][] updateGlauber(){
 		//pick a random spin, consider delta E
 		int randX = random.nextInt(width); //random between 0 and width-1
 		int randY = random.nextInt(height);
@@ -75,11 +84,14 @@ public class IsingModel {
 		//if spin if flipped then return coords otherwise return null
 		if(deltaE <= 0 || random.nextDouble() < Math.exp(-1*deltaE/(k*T))){
 			spins[randX][randY] = !spins[randX][randY];	
+			return new int[][] {{randX,randY}};
 		}
-		
+		else{
+			return null;
+		}	
 	}
 	
-	private void updateKawasaki(){
+	private int[][] updateKawasaki(){
 		int randX1 = random.nextInt(width);
 		int randY1 = random.nextInt(height);
 		
@@ -100,6 +112,11 @@ public class IsingModel {
 			boolean tmp = spins[randX1][randY1];
 			spins[randX1][randY1] = spins[randX2][randY2];
 			spins[randX2][randY2] = tmp;
+			
+			return new int[][] {{randX1,randY1} , {randX2,randY2}};
+		}
+		else{
+			return null;
 		}
 		
 	}	
@@ -141,9 +158,7 @@ public class IsingModel {
 			
 			//return sum of delta E
 			return flip1 + flip2;
-		}
-		
-		 
+		}	 
 	}
 	
 	

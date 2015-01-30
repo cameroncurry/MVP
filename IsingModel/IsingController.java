@@ -1,13 +1,10 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 
 import javax.swing.*;
 
 public class IsingController implements Viewable<IsingSettings>, Runnable {
 
-	
-	private static final long serialVersionUID = 1L;
 	
 	private JButton backButton;
 	
@@ -16,6 +13,7 @@ public class IsingController implements Viewable<IsingSettings>, Runnable {
 	private IsingModel ising;
 	
 	private Thread simulationThread;
+	private boolean threadFlag; //if flag is true then stop thread
 	
 	
 	public IsingController(){
@@ -52,30 +50,35 @@ public class IsingController implements Viewable<IsingSettings>, Runnable {
 	public void setSettings(IsingSettings settings) {
 		ising = new IsingModel(settings);
 		simulationThread = new Thread(this);
+		threadFlag = true;
 		simulationThread.start();
 	}
 	
 	public void willShowMenu(){
-		simulationThread.interrupt();
+		threadFlag = false;
 	}
 	
 	
+	//run ising simulation
 	public void run() {
-		//run ising simulation
 		
 		//set initial view
 		view.setAndRepaint(ising.getSpins());
 		
 		//loop simulation
-		for(int i=0; true; i++){
+		while(threadFlag){
 			
-			ising.update();
 			
-			view.setAndRepaint(ising.getSpins());
+			int[][] coords = ising.update();
+			
+			//only if the update method has returned update cells, repaint view
+			if(coords != null){
+				view.setAndRepaint(ising.getSpins());
+			}
 			
 		}
 		
-		//return null;
+		
 	}
 	
 }
@@ -83,22 +86,10 @@ public class IsingController implements Viewable<IsingSettings>, Runnable {
 
 /*
 public static void main(String[] args){
-	
-	try {
-		SwingUtilities.invokeAndWait(new Runnable(){
-			public void run(){
-				IsingController c = new IsingController();
-				c.start();
-			}
-		});
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
 	/*
 	try {
 		Runtime.getRuntime().exec("echo hello");
 	} catch (IOException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
 	
