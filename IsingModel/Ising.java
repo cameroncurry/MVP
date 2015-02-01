@@ -1,4 +1,5 @@
 import java.awt.EventQueue;
+import java.io.IOException;
 
 
 public class Ising {
@@ -13,5 +14,17 @@ public class Ising {
 			}
 		});
 		
+		
+		/*
+		try {
+			Runtime r = Runtime.getRuntime();
+			Process p = r.exec("python Plot.py");
+			p.waitFor();
+			System.out.println("hello");
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+		*/
 	}
 }

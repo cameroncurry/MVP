@@ -1,7 +1,11 @@
 
+
+
 public class IsingModelWithAverages extends IsingModel {
 
 	private int sweeps; //number of times averages have been updated
+	
+	private double MsumAbs;
 	
 	private double Msum;
 	private double M2sum; //M squared
@@ -25,6 +29,7 @@ public class IsingModelWithAverages extends IsingModel {
 	
 	public void reset(){
 		this.sweeps = 0;
+		this.MsumAbs = 0;
 		this.Msum = 0;
 		this.M2sum = 0;
 		this.Esum = 0;
@@ -55,6 +60,7 @@ public class IsingModelWithAverages extends IsingModel {
 		
 		Msum += M;
 		M2sum += M*M;
+		MsumAbs += Math.abs(M);
 		Esum += E;
 		E2sum += E*E;
 		sweeps ++;
@@ -62,10 +68,17 @@ public class IsingModelWithAverages extends IsingModel {
 	}
 	
 	
-	
-	public double absMagnetisation(){
-		return Math.abs(Msum) / (double)(sweeps*width*height);
+	//average of absolute value of M
+	public double averageAbsM(){
+		return MsumAbs / (double)(sweeps*width*height);
 	}
+	public double errorAbsM(){
+		double averageAbsM = averageAbsM();
+		double magSquaredAverage = M2sum / (double)(sweeps*sweeps*width*height);
+		return Math.sqrt((magSquaredAverage-(averageAbsM*averageAbsM)) / (double)sweeps);
+	}
+	
+	
 	public double susceptibility(){
 		double averageMagSquared = Math.pow(Msum / (double)sweeps,2);
 		double magSquaredAverage = M2sum / (double)sweeps;

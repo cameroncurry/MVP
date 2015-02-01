@@ -1,12 +1,17 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class IsingController implements Viewable<IsingSettings>, Runnable {
 
 	
 	private JButton backButton;
+	private JSpinner tSpinner; // spinner to set temperatre dynamically
 	
 	private JPanel fullPanel;
 	private IsingView view;
@@ -26,6 +31,25 @@ public class IsingController implements Viewable<IsingSettings>, Runnable {
 		
 		backButton = new JButton("Back");
 		header.add(backButton,BorderLayout.WEST);
+		
+		
+		JPanel tPanel = new JPanel();
+		tPanel.setBackground(Color.white);
+		JLabel t = new JLabel("Temperature");
+		tPanel.add(t);
+		
+		tSpinner = new JSpinner(new SpinnerNumberModel(1.0, 0, 99, 0.1));
+		tPanel.add(tSpinner,BorderLayout.EAST);
+		
+		tSpinner.addChangeListener(new ChangeListener(){
+
+			public void stateChanged(ChangeEvent e) {
+				ising.setTemperature((Double)tSpinner.getValue());
+			}
+		});
+		
+		
+		header.add(tPanel,BorderLayout.EAST);
 		
 		fullPanel.add(header,BorderLayout.NORTH);
 		
@@ -52,8 +76,10 @@ public class IsingController implements Viewable<IsingSettings>, Runnable {
 		simulationThread = new Thread(this);
 		threadFlag = true;
 		simulationThread.start();
+		tSpinner.setValue(settings.T);
 	}
 	
+	//clicked back button, going back to menu - stop thread
 	public void willShowMenu(){
 		threadFlag = false;
 	}
@@ -82,16 +108,3 @@ public class IsingController implements Viewable<IsingSettings>, Runnable {
 	}
 	
 }
-
-
-/*
-public static void main(String[] args){
-	/*
-	try {
-		Runtime.getRuntime().exec("echo hello");
-	} catch (IOException e) {
-		e.printStackTrace();
-	}
-	
-}
-*/
