@@ -9,4 +9,5 @@ public class IsingSettings {
 	public double spinUp;
 	public boolean glauber;
 	
+	
 }

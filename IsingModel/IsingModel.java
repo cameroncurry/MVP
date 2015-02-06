@@ -1,5 +1,4 @@
 import java.util.Random;
-import java.util.ArrayList;
 
 public class IsingModel {
 
@@ -12,7 +11,7 @@ public class IsingModel {
 	protected int height;
 	
 	//random number generator
-	private Random random;
+	protected Random random;
 	
 	//simulation constants
 	protected double J;

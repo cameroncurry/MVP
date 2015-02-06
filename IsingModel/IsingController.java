@@ -1,7 +1,5 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -71,7 +69,7 @@ public class IsingController implements Viewable<IsingSettings>, Runnable {
 	}
 	
 	
-	public void setSettings(IsingSettings settings) {
+	public void setSettings(IsingSettings settings){
 		ising = new IsingModel(settings);
 		simulationThread = new Thread(this);
 		threadFlag = true;
@@ -87,24 +85,18 @@ public class IsingController implements Viewable<IsingSettings>, Runnable {
 	
 	//run ising simulation
 	public void run() {
-		
 		//set initial view
 		view.setAndRepaint(ising.getSpins());
 		
 		//loop simulation
 		while(threadFlag){
-			
-			
 			int[][] coords = ising.update();
 			
 			//only if the update method has returned update cells, repaint view
 			if(coords != null){
 				view.setAndRepaint(ising.getSpins());
 			}
-			
 		}
-		
-		
 	}
 	
 }

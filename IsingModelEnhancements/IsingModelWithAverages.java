@@ -1,5 +1,4 @@
-
-
+import java.util.ArrayList;
 
 public class IsingModelWithAverages extends IsingModel {
 
@@ -13,6 +12,11 @@ public class IsingModelWithAverages extends IsingModel {
 	private double Esum;
 	private double E2sum;
 	
+	//arrays for error calculation
+	private ArrayList<Double> m;
+	private ArrayList<Double> e;
+	
+	
 	
 	public IsingModelWithAverages(IsingSettings settings) {
 		super(settings);
@@ -20,12 +24,6 @@ public class IsingModelWithAverages extends IsingModel {
 		this.reset();
 	}
 
-	public IsingModelWithAverages(int width, int height, double J, double k,double T, double initialUpProbability, boolean glauber)
-			throws IllegalArgumentException {
-		super(width, height, J, k, T, initialUpProbability, glauber);
-		
-		this.reset();
-	}
 	
 	public void reset(){
 		this.sweeps = 0;
@@ -34,11 +32,13 @@ public class IsingModelWithAverages extends IsingModel {
 		this.M2sum = 0;
 		this.Esum = 0;
 		this.E2sum = 0;
+		this.m = new ArrayList<Double>();
+		this.e = new ArrayList<Double>();
 	}
 
 	public void updateSums(){
-		int M = 0;
-		int E = 0;
+		double M = 0;
+		double E = 0;
 		
 		for(int i=0; i<width; i++){
 			for(int j=0; j<height; j++){
@@ -63,6 +63,9 @@ public class IsingModelWithAverages extends IsingModel {
 		MsumAbs += Math.abs(M);
 		Esum += E;
 		E2sum += E*E;
+		
+		m.add(M);
+		e.add(E);
 		sweeps ++;
 		
 	}
@@ -72,29 +75,92 @@ public class IsingModelWithAverages extends IsingModel {
 	public double averageAbsM(){
 		return MsumAbs / (double)(sweeps*width*height);
 	}
+	/*
 	public double errorAbsM(){
 		double averageAbsM = averageAbsM();
-		double magSquaredAverage = M2sum / (double)(sweeps*sweeps*width*height);
-		return Math.sqrt((magSquaredAverage-(averageAbsM*averageAbsM)) / (double)sweeps);
+		double mSquaredAverage = M2sum / (double)(sweeps*sweeps*width*height);
+		return Math.sqrt((mSquaredAverage-(averageAbsM*averageAbsM)) / (double)(sweeps-1));
 	}
-	
+	*/
 	
 	public double susceptibility(){
-		double averageMagSquared = Math.pow(Msum / (double)sweeps,2);
-		double magSquaredAverage = M2sum / (double)sweeps;
+		double averageM = Msum / (double)sweeps;
+		double MSquaredAverage = M2sum / (double)(sweeps);
 		
-		return (magSquaredAverage - averageMagSquared) / (k*T*width*height);	
+		return (MSquaredAverage - averageM*averageM) / (k*T*width*height);	
 	}
 	
+	//using bootstrap method
+	public double errorSusceptibility(){
+		int measurements = 100;
+		double chiSum = 0;
+		double chi2Sum = 0;
+		
+		for(int j=0; j<measurements; j++){
+			//find average and average squared susceptibility from random measurements of M
+			double mSum = 0;
+			double m2Sum = 0;
+			for(int i=0;i<sweeps;i++){
+				double q = m.get(super.random.nextInt(sweeps));
+				mSum += q;
+				m2Sum += q*q;
+			}
+			
+			double averageM = mSum / (double)sweeps;
+			double averageM2 = m2Sum / (double)(sweeps);
+			
+		
+			double chi = (averageM2 - averageM*averageM) / (k*T*width*height);
+			
+			chiSum += chi;
+			chi2Sum += chi*chi;
+		}
+		
+		double averageChi = chiSum / (double)measurements;
+		double averageChi2 = chi2Sum / (double)(measurements);
+		
+		return Math.sqrt(averageChi2 - averageChi*averageChi);
+	}
+	
+	
+	
 	public double averageE(){
-		//is energy normalised to size of array?
 		return Esum / (double)(sweeps*width*height);
 	}
+	
+	
 	public double heatCapacity(){
-		double averageEsquared = Math.pow(averageE(),2);
-		double EsquaredAverage = E2sum / (double)sweeps;
+		double averageE = Esum / (double)sweeps;
+		double EsquaredAverage = E2sum / (double)(sweeps);
 		
-		return (EsquaredAverage - averageEsquared) / (k*T*width*height);
+		return (EsquaredAverage - averageE*averageE) / (k*T*T*width*height);
+	}
+	public double errorHearCapacity(){
+		int measurements = 100;
+		double cSum = 0;
+		double c2Sum = 0;
+		
+		for(int j=0;j<measurements;j++){
+			double eSum = 0;
+			double e2Sum = 0;
+			for(int i=0;i<sweeps;i++){
+				double q = e.get(super.random.nextInt(sweeps));
+				eSum += q;
+				e2Sum += q*q;
+			}
+			
+			double averageE = eSum / (double)sweeps;
+			double averageE2 = e2Sum / (double)sweeps;
+			
+			double c = (averageE2 - averageE*averageE) / (k*T*T*width*height);
+			cSum += c;
+			c2Sum += c*c;
+		}
+		
+		double averageC = cSum / (double)measurements;
+		double averageC2 = c2Sum / (double)measurements;
+		
+		return Math.sqrt(averageC2 - averageC*averageC);
 	}
 
 }

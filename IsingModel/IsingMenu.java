@@ -184,7 +184,7 @@ public class IsingMenu extends MenuPanel<IsingSettings> {
 	 * MenuPanel methods
 	 */
 
-	public JComponent showViewClickComponent() {
+	public JComponent clickComponent() {
 		return startButton;
 	}
 
