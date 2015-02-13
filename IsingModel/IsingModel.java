@@ -81,7 +81,7 @@ public class IsingModel {
 		//if delta E is less than 0, flip spin
 		//otherwise randomly with prob. exp(deltaE / kT)
 		//if spin if flipped then return coords otherwise return null
-		if(deltaE <= 0 || random.nextDouble() < Math.exp(-1*deltaE/(k*T))){
+		if(deltaE < 0 || random.nextDouble() < Math.exp(-1*deltaE/(k*T))){
 			spins[randX][randY] = !spins[randX][randY];	
 			return new int[][] {{randX,randY}};
 		}
@@ -107,7 +107,7 @@ public class IsingModel {
 		
 		//exhange spins
 		//return coords as in glauber update
-		if(deltaE <= 0 || random.nextDouble() < Math.exp(-1*deltaE/(k*T))){
+		if(deltaE < 0 || random.nextDouble() < Math.exp(-1*deltaE/(k*T))){
 			boolean tmp = spins[randX1][randY1];
 			spins[randX1][randY1] = spins[randX2][randY2];
 			spins[randX2][randY2] = tmp;
