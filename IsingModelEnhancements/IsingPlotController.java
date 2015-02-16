@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 public class IsingPlotController implements Runnable, Viewable<IsingSettingsWithAverages> {
 
 	private JPanel fullPanel;
-	private IsingImageView view;
+	private ImagePanel view;
 	private IsingModelWithAverages ising;
 	private JButton backButton;
 	
@@ -45,7 +45,7 @@ public class IsingPlotController implements Runnable, Viewable<IsingSettingsWith
 		backButton = new JButton("Back");
 		headerPanel.add(backButton,BorderLayout.WEST);
 		
-		this.view = new IsingImageView();
+		this.view = new ImagePanel();
 		
 		fullPanel.add(headerPanel,BorderLayout.NORTH);
 		fullPanel.add(view);

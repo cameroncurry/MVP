@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 
-public class IsingImageView extends JPanel implements Runnable {
+public class ImagePanel extends JPanel implements Runnable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -22,7 +22,7 @@ public class IsingImageView extends JPanel implements Runnable {
 	private boolean threadFlag;
 	
 	
-	public IsingImageView(){
+	public ImagePanel(){
 		setBackground(Color.white);
 		animIndex = 0;
 		animMaxIndex = 5;
