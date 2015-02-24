@@ -17,6 +17,7 @@ public class SIRSController implements Runnable, Viewable<SIRSSettings>  {
 	
 	private Thread t;
 	private boolean threadFlag;
+
 	
 	public SIRSController(){
 		fullPanel = new JPanel();
@@ -42,8 +43,13 @@ public class SIRSController implements Runnable, Viewable<SIRSSettings>  {
 	
 	@Override
 	public void setSettings(SIRSSettings settings) {
-		this.model = new SIRSModel(settings);
-		this.view.set(model.getAgents());
+		try{
+			this.model = new SIRSModel(settings);
+			this.view.set(model.getAgents());
+		}
+		catch(NullPointerException e){
+			//do nothing
+		}
 		
 		threadFlag = false;
 		t = new Thread(this);
@@ -56,7 +62,7 @@ public class SIRSController implements Runnable, Viewable<SIRSSettings>  {
 			
 			int[] coords = model.update();
 			
-			if(counter%1000 == 0){
+			if(counter%(5000) == 0){
 				try {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {

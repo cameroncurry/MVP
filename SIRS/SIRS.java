@@ -13,9 +13,12 @@ public class SIRS {
 			public void run(){
 				SIRSMenu menu = new SIRSMenu();
 				SIRSController controller = new SIRSController();
+				SIRSPlotController plotController = new SIRSPlotController();
+				
 				
 				JFrame f = initFrame();
-				f.getContentPane().add(new MenuAndViewController<SIRSSettings>(menu,controller));
+				f.getContentPane().add(
+						new MenuAndDualViewController<SIRSSettings,SIRSPlotSettings>(menu,controller,plotController));
 				f.setVisible(true);
 			}
 		});
@@ -31,25 +34,4 @@ public class SIRS {
 		return frame;
 	}	
 
-	/*
-	public static void main(String[] args){
-		
-		//new SIRSController();
-		
-		EventQueue
-		
-		
-		JFrame f = new JFrame();
-		f.setSize(500, 500);
-		f.setLocationRelativeTo(null);
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		//SIRSView view = new SIRSView();
-		//SIRSModel model = new SIRSModel(100,100,)
-		
-		f.getContentPane().add(new SIRSMenu());
-		f.setVisible(true);
-		
-	}
-	*/
 }

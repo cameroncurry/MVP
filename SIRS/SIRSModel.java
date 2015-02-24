@@ -6,9 +6,9 @@ public class SIRSModel {
 	//0 for infected
 	//1 for recovered
 	//2 for permanently immune
-	private int[][] agents;
+	protected int[][] agents;
 	
-	private int width,height; //keep dimensions for quick access
+	protected int width,height; //keep dimensions for quick access
 	
 	private double p1; //prob S->I
 	private double p2; //prob I->R
@@ -64,7 +64,7 @@ public class SIRSModel {
 		int site = agents[randX][randY];
 		
 		//susceptible to infected
-		if(site < 0 && neighboursInfected(randX,randY)){
+		if(site == -1 && neighboursInfected(randX,randY)){
 			if(random.nextDouble() < p1){
 				agents[randX][randY] = 0;
 				return new int[] {randX,randY};
