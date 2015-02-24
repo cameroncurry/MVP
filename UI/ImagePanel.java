@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
@@ -39,6 +40,7 @@ public class ImagePanel extends JPanel implements Runnable {
 	}
 	public void stopAnimation(){
 		threadFlag = true;
+		animIndex = 0;
 	}
 	public void setImage(BufferedImage image){
 		this.image = image;
@@ -48,12 +50,10 @@ public class ImagePanel extends JPanel implements Runnable {
 		Dimension d = getSize();
 		if(image != null){
 			//resize image to fit panel
-			BufferedImage resized = new BufferedImage(d.width,d.height,image.getType());
-			Graphics2D g2 = resized.createGraphics();
-			g2.drawImage(image, 0, 0, d.width, d.height, null);
-			g2.dispose();
+			BufferedImage img = resize(this.image,d.width,d.height);
+			g.drawImage(img,0,0,null);
 			
-			g.drawImage(resized,0,0,null);
+			
 		}
 		else{
 			super.paintComponent(g);
@@ -70,6 +70,17 @@ public class ImagePanel extends JPanel implements Runnable {
 			}
 			
 		}
+	}
+	
+	private BufferedImage resize(BufferedImage img, int newW, int newH){
+		Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
+	    BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
+
+	    Graphics2D g2d = dimg.createGraphics();
+	    g2d.drawImage(tmp, 0, 0, null);
+	    g2d.dispose();
+
+	    return dimg;
 	}
 	
 	public void run(){

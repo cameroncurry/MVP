@@ -18,6 +18,11 @@ abstract class MenuPanel<Settings> extends JPanel {
 	public abstract JComponent clickComponent();
 	//generic class passed from menu to view ideally with settings
 	public abstract Settings getSettings();
+	
+	//return false if settings not compatible
+	public boolean canShowView(){
+		return true;
+	}
 }
 
 interface Viewable<Settings> {
