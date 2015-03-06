@@ -1,8 +1,7 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
+
 
 import javax.swing.JPanel;
 
@@ -54,8 +53,8 @@ public class SIRSView extends JPanel{
 	}
 	
 	private void paintBox(Graphics g, int i, int j, double boxWidth, double boxHeight){
-		if(array[i][j] < 0) g.setColor(Color.yellow);
-		else if(array[i][j] == 0) g.setColor(Color.red);
+		if(array[i][j] < 0) g.setColor(Color.red);
+		else if(array[i][j] == 0) g.setColor(Color.blue);
 		else if(array[i][j] == 1) g.setColor(Color.green);
 		else g.setColor(Color.black);
 		

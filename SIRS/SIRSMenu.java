@@ -415,7 +415,7 @@ public class SIRSMenu extends DualMenuPanel<SIRSSettings,SIRSPlotSettings> {
 		
 		gbc.ipadx = 0;
 		
-		plotContour = new JRadioButton("Contour Plot");
+		plotContour = new JRadioButton("Surface Plot");
 		gbc.gridy = 4;
 		gbc.gridx = 0;
 		gbc.gridwidth = 3;

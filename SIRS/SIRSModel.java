@@ -37,6 +37,12 @@ public class SIRSModel {
 		initializeArray(percentS,percentI,percentImmune);
 	}
 	
+	public void setProbabilities(double p1, double p2, double p3){
+		this.p1 = p1;
+		this.p2 = p2;
+		this.p3 = p3;
+	}
+	
 	//args: susceptible, infected, immune
 	private void initializeArray(double s, double i, double I){
 		for(int j=0; j<width;j++){

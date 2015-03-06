@@ -1,7 +1,7 @@
 
 public class SIRSPlotSettings extends SIRSSettings {
 
-	public int points; //points to plot on graph
+	public int points;
 	public int sweeps;
 	public int updatesPerSweep;
 	public int burnIn;

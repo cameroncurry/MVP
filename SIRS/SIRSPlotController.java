@@ -23,6 +23,8 @@ public class SIRSPlotController implements Runnable, Viewable<SIRSPlotSettings> 
 	
 	private boolean threadFlag;
 	private double[] infected; //normalised infected as a function of sweeps (time)
+	private double[][] infectedContour; //surface of average infected as a function of p1, p3
+	private double[][] varInfectedContour;
 	
 	
 	public SIRSPlotController() {
@@ -48,7 +50,13 @@ public class SIRSPlotController implements Runnable, Viewable<SIRSPlotSettings> 
 		model = new SIRSPlotModel(settings);
 		imagePanel.startAnimation();
 		this.settings = settings;
-		this.infected = new double[settings.points];
+		if(settings.plotTime){
+			this.infected = new double[settings.points];
+		}
+		else {
+			this.infectedContour = new double[settings.points][settings.points];
+			this.varInfectedContour = new double[settings.points][settings.points];
+		}
 		
 		new Thread(this).start();
 	}
@@ -56,32 +64,40 @@ public class SIRSPlotController implements Runnable, Viewable<SIRSPlotSettings> 
 	public void run(){
 		
 		try {
-			runSimulation();
-			printToFile();
+			if(settings.plotTime){
+				runTime();
+			}
+			else {
+				runContour();
+			}
+			if(!threadFlag){
+				printToFile();
 			
-			Runtime r = Runtime.getRuntime();
-			Process p = r.exec("python SirsPlot.py");
-			p.waitFor();
+				Runtime r = Runtime.getRuntime();
+				Process p = r.exec(String.format("python SirsPlot.py %s", settings.plotContour));
+				p.waitFor();
 			
-			BufferedImage image = ImageIO.read(new File("sirsfig.png"));
-			this.imagePanel.setImage(image);
+				BufferedImage image = ImageIO.read(new File("sirsfig.png"));
+				this.imagePanel.setImage(image);
+			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 	}
 	
-	private void runSimulation(){
+	private void runTime(){
 		//run to equilibrium
-		for(int i=0; i<settings.burnIn && !threadFlag;i++){
-			for(int j=0;j<settings.updatesPerSweep;j++){
+		for(int i=0; i<settings.burnIn;i++){
+			for(int j=0;j<settings.updatesPerSweep && !threadFlag;j++){
 				model.update();
 			}
 		}
 		
 		//collect data
 		for(int i=0;i<settings.points;i++){
-			for(int j=0;j<settings.updatesPerSweep;j++){
+			for(int j=0;j<settings.updatesPerSweep && !threadFlag;j++){
 				model.update();
 			}
 			this.infected[i] = model.normedTotalInfected();
@@ -89,11 +105,57 @@ public class SIRSPlotController implements Runnable, Viewable<SIRSPlotSettings> 
 			
 	}
 	
-	private void printToFile() throws FileNotFoundException{
-		PrintWriter p = new PrintWriter("sirs.txt");
+	private void runContour(){
+		double probincrement = 1. / (double)settings.points;
 		
-		for(int i=0;i<infected.length;i++){
-			p.printf("%d %.4f\n",i,infected[i]);
+		for(int i=0; i<settings.points && !threadFlag; i++){ //points along x
+			for(int j=0; j<settings.points && !threadFlag; j++){ // points along y
+				//set probabilities
+				model.setProbabilities(i*probincrement, settings.p2, j*probincrement);
+				
+				//burn in for every simulation
+				for(int k=0; k<settings.burnIn; k++){
+					for(int l=0;l<settings.updatesPerSweep && !threadFlag; l++){
+						model.update();
+					}
+				}
+				
+				
+				//run 1 simulation for this points then reset for next point
+				for(int k=0; k<settings.sweeps; k++){
+					for(int l=0; l<settings.updatesPerSweep && !threadFlag; l++){
+						model.update();
+					}
+					model.updateSums();
+				}
+				infectedContour[i][j] = model.averageInfected();
+				varInfectedContour[i][j] = model.varianceInfected();
+				
+				model = new SIRSPlotModel(settings); // Initialize new model for every point
+				//set probabilities
+			}
+		}
+		
+	}
+	
+	private void printToFile() throws FileNotFoundException {
+		PrintWriter p = new PrintWriter("sirs.txt");
+		if(settings.plotTime){
+			for(int i=0;i<infected.length;i++){
+				p.printf("%d %.4f\n",i,infected[i]);
+			}
+		}
+		else {
+			PrintWriter p2 = new PrintWriter("sirs2.txt");
+			for(int i=0; i<settings.points; i++){
+				for(int j=0; j<settings.points; j++){
+					p.printf("%.4f ", infectedContour[i][j]);
+					p2.printf("%.4f ", varInfectedContour[i][j]);
+				}
+				p.println();
+				p2.println();
+			}
+			p2.close();
 		}
 		p.close();
 	}
