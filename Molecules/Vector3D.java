@@ -29,6 +29,11 @@ public class Vector3D {
 	public void setY(double y){this.y = y;}
 	public void setZ(double z){this.z = z;}
 	
+	@Override
+	public String toString(){
+		return String.format("%.3f %.3f %.3f", x,y,z);
+	}
+	
 	public double mag(){
 		return Math.sqrt(x*x + y*y + z*z);
 	}
@@ -38,6 +43,12 @@ public class Vector3D {
 		this.x += b.x();
 		this.y += b.y();
 		this.z += b.z();
+	}
+	
+	public void subtract(Vector3D b){
+		this.x -= b.x();
+		this.y -= b.y();
+		this.z -= b.z();
 	}
 	
 	//multiply vector by a constant
@@ -58,6 +69,11 @@ public class Vector3D {
 		return new Vector3D(a.x()-b.x(),
 							a.y()-b.y(),
 							a.z()-b.z());
+	}
+	
+	//dot product
+	public static double dot(Vector3D a, Vector3D b){
+		return a.x()*b.x() + a.y()*b.y() + a.z()*b.z();
 	}
 
 }
