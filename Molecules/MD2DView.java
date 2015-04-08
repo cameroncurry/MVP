@@ -1,7 +1,9 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridBagLayout;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class MD2DView extends JPanel {
@@ -10,16 +12,25 @@ public class MD2DView extends JPanel {
 	
 	private Particle3D[] particles;
 	private double boxDimension;
+	private JLabel softLabel;
 	
 	private int particleSize = 20;
 
 	public MD2DView() {
-		setBackground(Color.white);
+		setBackground(Color.black);
+		setLayout(new GridBagLayout());
+		softLabel = new JLabel("<html><font color='white', size=+5>Soft Potential Enabled</font></html>");
+		this.add(softLabel);
+		softLabel.setVisible(false);
 	}
 	
 	public void set(Particle3D[] particles,double dimension){
 		this.particles = particles;
 		this.boxDimension = dimension;
+	}
+	
+	public void setSoft(boolean soft){
+		this.softLabel.setVisible(soft);
 	}
 	
 	

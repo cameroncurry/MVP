@@ -72,7 +72,7 @@ public class MDMenu extends MenuPanel<MDSettings> {
 		/*
 		 * number of particles
 		 */
-		NSpinner = new JSpinner(new SpinnerNumberModel(36,1,999,10));
+		NSpinner = new JSpinner(new SpinnerNumberModel(50,1,999,10));
 		gbc.gridy = 1;
 		gbc.insets.bottom = 10;
 		panel.add(singleCompPanel("Number of Particles:",NSpinner),gbc);
@@ -88,7 +88,7 @@ public class MDMenu extends MenuPanel<MDSettings> {
 		 * time step & density
 		 */
 		
-		timeSpinner = new JSpinner(new SpinnerNumberModel(0.001,0,100,0.01));
+		timeSpinner = new JSpinner(new SpinnerNumberModel(0.001,0,1000,0.01));
 		densitySpinner = new JSpinner(new SpinnerNumberModel(0.3,0,1,0.1));
 		gbc.gridx = 0;
 		gbc.gridy = 0;
@@ -220,6 +220,7 @@ public class MDMenu extends MenuPanel<MDSettings> {
 		
 		if(potentialBox.getSelectedIndex() == 0){
 			settings.LJ = true;
+			System.out.println("LJ");
 		}
 		else {
 			settings.LJ = false;

@@ -7,17 +7,17 @@ import javax.swing.JFrame;
 
 public class MolecularDynamics {
 
+	
 	public static void main(String[] args){
 		
 		EventQueue.invokeLater(new Runnable(){
 			public void run(){
 				JFrame f = initFrame();
-				
-				f.getContentPane().add(new MDMenu());
-				
+				f.getContentPane().add(new MenuAndViewController<MDSettings>(new MDMenu(), new MDController()));
 				f.setVisible(true);
 			}
 		});
+		
 	}
 
 	static JFrame initFrame(){

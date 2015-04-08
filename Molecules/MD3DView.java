@@ -1,67 +1,111 @@
-// Particle-Dynamics Visualizer by Greg Tumolo (greg.tumolo@ed.ac.uk)
-
 import java.awt.Color;
-import java.awt.Frame;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.Timer;
-import java.util.TimerTask;
 
-class Rotate {	// -------------------------------------------------------------
+import javax.swing.JPanel;
+
+
+public class MD3DView extends JPanel {
+
+	private static final long serialVersionUID = 1L;
+	
 	static int S = 780;	// (Display) Size [pixels]
 	static int DP = 33;	// Draw Period [ms]
 	static int UP = 1000;	// Update Period [ms]
-	static int BG_RGB = Color.white.getRGB();	// BackGround RGB
+	static int BG_RGB = Color.black.getRGB();	// BackGround RGB
 	static double B_MIN = .1;	// MINimum (Point) Brightness in [0, 1]
 
-	static void init(Point[] Ps) {
-		for (int i = 0; i < Ps.length; i++) Ps[i] = new Point(1.15470053837925*(Math.random() - .5), 1.15470053837925*(Math.random() - .5), 1.15470053837925*(Math.random() - .5), 255, 0, 0);
-	}
-
-	static void update(Point[] Ps) {
-		Ps[(int)(Math.random()*Ps.length)].g = 255;
-	}
-	//----------------------------------------------------------------------
-
-	public static void main(String[] args) throws Exception {
-		/*
-		if (args.length != 5) throw new Exception("Arguments: #Points #Pixels(Radius_minimum) #Pixels(Radius_maximum) Perspective? Shading?");
-		final Point[] Ps = new Point[Integer.parseInt(args[0])];
-		final int r_min = Integer.parseInt(args[1]);
-		final int r_range = Integer.parseInt(args[2]) - r_min;
-		final boolean perspective = Boolean.parseBoolean(args[3]);
-		final boolean shading = Boolean.parseBoolean(args[4]);
-		 */
-		final Point[] Ps = new Point[1000];
-		final int r_min = 1;
-		final int r_range = 20;
-		final boolean perspective = true;
-		final boolean shading = true;
-		
+	
+	RotationAdapter ra;
+	double dimension;
+	
+	public MD3DView() {
+		Ps = new Particle3D[20];
+		dimension = 1.;
 		init(Ps);
-
-		final Frame f = new Frame();
-		f.setIgnoreRepaint(true);
-		f.setVisible(true);
-		top = f.getInsets().top;
-		f.setSize(S, S + top);
-		int hS = S/2;	// half Size [pixels]
-		final RotationAdapter ra = new RotationAdapter(hS, top + hS);
-		f.addMouseListener(ra);
-		f.addMouseMotionListener(ra);
-		f.addWindowListener(new WindowAdapter() {public void windowClosing(WindowEvent we) {System.exit(0);}});
-
-		new Timer().scheduleAtFixedRate(new TimerTask() {public void run() {draw(ra, Ps, r_min, r_range, perspective, shading, f);}}, 0, DP);
-		new Timer().scheduleAtFixedRate(new TimerTask() {public void run() {update(Ps);}}, 0, UP);
+		ra = new RotationAdapter(0,0);
+		this.addMouseListener(ra);
+		this.addMouseMotionListener(ra);
+		
 	}
+	
+	public void set(Particle3D[] particles, double dimension){
+		this.Ps = particles;
+		this.dimension = dimension;
+	}
+	
+	static void init(Particle3D[] Ps) {
+		
+		int N = Ps.length;
+		double sigma = 1;
+		double density = 1;
+		
+		double volume = N*Math.PI / (6*sigma*sigma*sigma*density);
+		double sideLength = Math.cbrt(volume);
+		double nPerD = Math.cbrt(N);
+		
+		double delta = sideLength / nPerD;
+		
+		int index = 0;
+		for(int i=0;i<nPerD;i++){
+			for(int j=0;j<nPerD;j++){
+				for(int k=0;k<nPerD;k++){
+					if(index < N){
+						Vector3D pos = new Vector3D(i*delta,j*delta,k*delta);
+						Ps[index] = new Particle3D(1,pos,new Vector3D());
+						index++;
+					}
+				}
+			}
+			
+		}
+		
+		
+		
+	}
+	
+	Particle3D[] Ps;
+	final int r_min = 1;
+	final int r_range = 10;
+	final boolean perspective = true;
+	final boolean shading = true;
+	
+	BufferedImage b;
+	
+	
+	public void paintComponent(Graphics g){
+		if(Ps != null){
+			Dimension d = getSize();
+			b = draw(ra, Ps, r_min, r_range, perspective, shading,Color.pink);
+			BufferedImage img = resize(b,d.width,d.height);
+			g.drawImage(img, 0, 0, null);
+		}
+	}
+	
+	private BufferedImage resize(BufferedImage img, int newW, int newH){
+		Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
+	    BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
+
+	    Graphics2D g2d = dimg.createGraphics();
+	    g2d.drawImage(tmp, 0, 0, null);
+	    g2d.dispose();
+
+	    return dimg;
+	}
+	
 	//static int r_range;	// radius range [pixels]
 	static int top;	// ...of display area (or bottom of menu bar) w/r/t origin of frame
 	static double[][] Z = new double[S][S];	// Z-buffer
 	static BufferedImage bi = new BufferedImage(S, S, BufferedImage.TYPE_INT_RGB);
 	static float[] hsb = new float[3];	// {hue in [0, 1], saturation in [0, 1], brightness in [0, 1]}
 	static int Sm1 = S - 1;	// [pixels]
-	static void draw(RotationAdapter ra, Point[] Ps, int r_min, int r_range, boolean perspective, boolean shading, Frame f) {
+	
+	private BufferedImage draw(RotationAdapter ra, Particle3D[] Ps, int r_min, int r_range, boolean perspective, boolean shading,Color c) {
 		for (int i = 0; i < S; i++) {
 			double[] Z_i = Z[i];
 			for (int j = 0; j < S; j++) {
@@ -82,14 +126,20 @@ class Rotate {	// -------------------------------------------------------------
 			R_1_0 = 2.*(q_0*q_1 + q_2*q_3),		R_1_1 = 1. - 2.*(q_0*q_0 + q_2*q_2),	R_1_2 = 2.*(q_1*q_2 - q_0*q_3),
 			R_2_0 = 2.*(q_0*q_2 - q_1*q_3),		R_2_1 = 2.*(q_0*q_3 + q_1*q_2),		R_2_2 = 1. - 2.*(q_0*q_0 + q_1*q_1);	// R(otation matrix) components
 
-		for (Point P : Ps) {
-			double x = R_0_0*P.x + R_0_1*P.y + R_0_2*P.z, y = R_1_0*P.x + R_1_1*P.y + R_1_2*P.z, z = R_2_0*P.x + R_2_1*P.y + R_2_2*P.z;	// rotated coordinates
+		for (Particle3D P : Ps) {
+			Vector3D pos = P.position();
+			double p_x = 1.15470053837925*((pos.x()/dimension) - .5);
+			double p_y = 1.15470053837925*((pos.y()/dimension) - .5);
+			double p_z = 1.15470053837925*((pos.z()/dimension) - .5);
+			
+			double x = R_0_0*p_x + R_0_1*p_y + R_0_2*p_z, y = R_1_0*p_x + R_1_1*p_y + R_1_2*p_z, z = R_2_0*p_x + R_2_1*p_y + R_2_2*p_z;	// rotated coordinates
 
 			int rgb;	// (packed) red-, green-, and blue-components of color
+			//Color pink = Color.pink;
 			if (shading) {
-				Color.RGBtoHSB(P.r, P.g, P.b, hsb);
+				Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), hsb);
 				rgb = Color.HSBtoRGB(hsb[0], hsb[1], (float)Math.max(B_MIN, .5*(z + 1.)*hsb[2]));
-			} else rgb = P.r << 16 | P.g << 8 | P.b;
+			} else rgb = c.getRed() << 16 | c.getGreen() << 8 | c.getBlue();
 
 			int i_0, j_0;	// indices corresponding to x, y, and, conditionally, z
 			if (perspective) {
@@ -115,10 +165,12 @@ class Rotate {	// -------------------------------------------------------------
 				}
 			}
 		}
-		f.getGraphics().drawImage(bi, 0, top, f.getWidth(), f.getHeight() - top, null);
+		//f.getGraphics().drawImage(bi, 0, top, f.getWidth(), f.getHeight() - top, null);
+		return bi;
 	}
+	
 }
-/*
+
 class RotationAdapter extends MouseAdapter {	// -----------------------------
 	static double RPP = 0.5*Math.PI/180.;	// Radians Per Pixel (dragged) [radians]
 	//----------------------------------------------------------------------
@@ -139,7 +191,7 @@ class RotationAdapter extends MouseAdapter {	// -----------------------------
 
 	public void mouseDragged(MouseEvent me) {
 		int x_p = x_c, y_p = y_c;	// previous mouse coordinates (in system of listener(s) of this)
-
+		
 		x_c = me.getX();
 		y_c = me.getY();
 
@@ -171,26 +223,5 @@ class RotationAdapter extends MouseAdapter {	// -----------------------------
 		}
 	}
 }
-*/
-class Point {
-	double x, y, z;	// coordinates
-	int r, g, b;	// red-, green-, and blue-components of color in [0, 255]
 
-	Point(double x, double y, double z, int r, int g, int b) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.r = r;
-		this.g = g;
-		this.b = b;
-	}
 
-	Point(double x, double y, double z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
-
-	Point() {
-	}
-}
