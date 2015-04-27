@@ -20,6 +20,10 @@ public class Particle3D {
 	}
 	public void setVelocity(Vector3D velocity){this.velocity = new Vector3D(velocity);}
 	
+	public double kineticEnergy(){
+		return 0.5*mass*Vector3D.dot(velocity, velocity);
+	}
+	
 	//the distance between particle a and particle b
 	public static Vector3D separation(Particle3D a, Particle3D b){
 		return Vector3D.subtract(a.position(), b.position());
