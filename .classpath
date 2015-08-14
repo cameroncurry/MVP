@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="IsingModel"/>
+	<classpathentry kind="src" path="UI"/>
+	<classpathentry kind="src" path="IsingModelEnhancements"/>
+	<classpathentry kind="src" path="SIRS"/>
+	<classpathentry kind="src" path="Molecules"/>
+	<classpathentry kind="src" path="ExamPrep"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
